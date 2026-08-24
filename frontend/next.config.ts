@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'export',
-  // images: { unoptimized: true }, // Required for static export when using next/image
+  basePath: '/gde-skidka', // Нужно для работы на murzirius.github.io/gde-skidka
 };
 
 export default nextConfig;
