@@ -1,7 +1,8 @@
 "use client";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { MapPin, Search } from "lucide-react";
+import { MapPin, Search, X } from "lucide-react";
 
 // Динамический импорт карты, так как Leaflet требует объект window (работает только в браузере)
 const MapBackground = dynamic(() => import("./components/MapBackground"), { 
@@ -10,18 +11,30 @@ const MapBackground = dynamic(() => import("./components/MapBackground"), {
 });
 
 export default function Home() {
+  const [isMapVisible, setIsMapVisible] = useState(false);
+
   return (
     <main className="min-h-screen relative overflow-hidden flex flex-col">
       {/* Контейнер для Карты (OpenStreetMap) */}
-      <div className="absolute inset-0 z-0">
+      <div className={`absolute inset-0 transition-opacity duration-500 ${isMapVisible ? 'z-0' : 'z-0'}`}>
         <MapBackground />
       </div>
 
-      {/* Затемнение/Градиент, чтобы текст читался поверх карты */}
-      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-black/80 via-black/40 to-black/80" />
+      {/* Затемнение/Градиент, чтобы текст читался поверх карты (скрывается, если смотрим карту) */}
+      <div className={`absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-black/80 via-black/40 to-black/80 transition-opacity duration-500 ${isMapVisible ? 'opacity-0' : 'opacity-100'}`} />
+
+      {/* Кнопка закрытия карты (появляется, когда UI скрыт) */}
+      {isMapVisible && (
+        <button 
+          onClick={() => setIsMapVisible(false)}
+          className="absolute top-6 right-6 z-20 bg-surface/90 backdrop-blur-md p-3 rounded-full text-white shadow-xl border border-white/10 hover:bg-surface transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      )}
 
       {/* UI поверх карты */}
-      <div className="z-10 flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto space-y-12 p-6 pointer-events-auto">
+      <div className={`z-10 flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto space-y-12 p-6 transition-all duration-500 ${isMapVisible ? 'opacity-0 pointer-events-none translate-y-10' : 'opacity-100 pointer-events-auto translate-y-0'}`}>
         
         {/* Заголовок */}
         <div className="text-center space-y-4">
@@ -44,7 +57,10 @@ export default function Home() {
             />
           </div>
           
-          <button className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors shadow-lg shadow-primary/20">
+          <button 
+            onClick={() => setIsMapVisible(true)}
+            className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors shadow-lg shadow-primary/20"
+          >
             <MapPin className="w-5 h-5" />
             Найти на карте
           </button>
